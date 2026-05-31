@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: route-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/route_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+
+osrm:
+  base-url: http://router.project-osrm.org
+  profile: driving
+  connect-timeout: 5000
+  read-timeout: 30000
+
+logging:
+  level:
+    com.umutgldn.route_service: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+server:
+  port: 8081
+
