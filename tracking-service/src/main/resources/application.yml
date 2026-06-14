@@ -1,0 +1,37 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: tracking-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/tracking_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+route-service:
+  url: http://localhost:8081
+
+simulation:
+  tick-interval-ms: 2000
+  step: 10
+
+logging:
+  level:
+    com.umutgldn.tracking_service: INFO
+    org.hibernate.SQL: WARN
