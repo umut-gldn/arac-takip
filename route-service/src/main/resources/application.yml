@@ -27,7 +27,6 @@ logging:
   level:
     com.umutgldn.route_service: INFO
     org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
 
 server:
   port: 8081

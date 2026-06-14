@@ -1,9 +1,8 @@
 package com.umutgldn.route_service.client.osrm;
 
 
-import com.umutgldn.route_service.exception.ExternalServiceException;
+import com.umutgldn.common.exception.ExternalServiceException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -18,9 +17,9 @@ public class OsrmRestClient implements OsrmClient {
     private final String profile;
 
     public OsrmRestClient(RestClient osrmHttpClient,
-                          @Value("${osrm.profile}") String profile) {
+                          OsrmProperties properties) {
         this.restClient = osrmHttpClient;
-        this.profile = profile;
+        this.profile = properties.profile();
     }
 
     @Override
@@ -33,7 +32,7 @@ public class OsrmRestClient implements OsrmClient {
             OsrmResponse response= restClient.get()
                     .uri(uriBuilder-> uriBuilder
                             .path(path)
-                            .queryParam("overview","full")
+                            .queryParam("overview","simplified")
                             .queryParam("geometries","geojson")
                             .build())
                     .retrieve()

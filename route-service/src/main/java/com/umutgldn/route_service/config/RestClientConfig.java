@@ -1,7 +1,7 @@
 package com.umutgldn.route_service.config;
 
 
-import org.springframework.beans.factory.annotation.Value;
+import com.umutgldn.route_service.client.osrm.OsrmProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -13,17 +13,13 @@ import java.time.Duration;
 public class RestClientConfig {
 
     @Bean
-    public RestClient osrmHttpClient(
-            @Value("${osrm.base-url}") String baseUrl,
-            @Value("${osrm.connect-timeout}") int connectTimeout,
-            @Value("${osrm.read-timeout}") int readTimeout
-    ) {
-        SimpleClientHttpRequestFactory factory= new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(Duration.ofMillis(connectTimeout));
-        factory.setReadTimeout(Duration.ofMillis(readTimeout));
+    public RestClient osrmHttpClient(OsrmProperties osrmProperties) {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofMillis(osrmProperties.connectTimeout()));
+        factory.setReadTimeout(Duration.ofMillis(osrmProperties.readTimeout()));
 
         return RestClient.builder()
-                .baseUrl(baseUrl)
+                .baseUrl(osrmProperties.baseUrl())
                 .requestFactory(factory)
                 .build();
     }
