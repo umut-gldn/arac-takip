@@ -32,6 +32,9 @@ public class SimulationAdvanceTask {
     @Value("${simulation.step}")
     private int step;
 
+    @Value("${simulation.max-consecutive-failures}")
+    private int maxConsecutiveFailures;
+
     @Scheduled(fixedRateString = "${simulation.tick-interval-ms}")
     @Transactional
     public void advanceRunningSimulations() {
@@ -61,18 +64,27 @@ public class SimulationAdvanceTask {
             route = routeServiceClient.getRoute(simulation.getRouteId());
         } catch (FeignException e) {
             log.error("Could not fetch route {} for simulation {}", simulation.getRouteId(), simulation.getId(), e);
+            simulation.setConsecutiveFailures(simulation.getConsecutiveFailures() + 1);
+            if(simulation.getConsecutiveFailures() >= maxConsecutiveFailures) {
+                simulation.setStatus(SimulationStatus.FAILED);
+                log.error("Simulation id={} marked FAILED after {} consecutive route-fetch failures", simulation.getId(), maxConsecutiveFailures);
+            }
             return;
         }
+        simulation.setConsecutiveFailures(0);
 
         if (nextIndex >= route.coordinates().size()) {
+            RouteResponse.CoordinateResponse lastCoordinate = route.coordinates().get(lastIndex);
+            moveTo(simulation, lastCoordinate, lastIndex);
             completeSimulation(simulation);
             return;
         }
 
         RouteResponse.CoordinateResponse nextCoordinate = route.coordinates().get(nextIndex);
-        simulation.setCurrentCoordinateIndex(nextIndex);
+        moveTo(simulation, nextCoordinate, nextIndex);
+   /*     simulation.setCurrentCoordinateIndex(nextIndex);
         simulation.setCurrentLatitude(nextCoordinate.latitude());
-        simulation.setCurrentLongitude(nextCoordinate.longitude());
+        simulation.setCurrentLongitude(nextCoordinate.longitude());*/
         double progress = (double) nextIndex / lastIndex * 100.0;
 
         eventPublisher.publishLocationUpdated(new LocationUpdatedEvent(
@@ -87,11 +99,17 @@ public class SimulationAdvanceTask {
                 Instant.now()
         ));
 
-        detectAndPublishMilestone(simulation,progress);
+        detectAndPublishMilestone(simulation, progress);
 
-        if (nextIndex >= lastIndex) {
+       /* if (nextIndex >= lastIndex) {
             completeSimulation(simulation);
-        }
+        }*/
+    }
+
+    private void moveTo(Simulation simulation, RouteResponse.CoordinateResponse coordinate, int index) {
+        simulation.setCurrentCoordinateIndex(index);
+        simulation.setCurrentLatitude(coordinate.latitude());
+        simulation.setCurrentLongitude(coordinate.longitude());
     }
 
     private void completeSimulation(Simulation simulation) {
@@ -102,7 +120,6 @@ public class SimulationAdvanceTask {
 
     private void detectAndPublishMilestone(Simulation simulation, double progress) {
         Milestone reached = null;
-
 
         if (progress >= 100.0 && simulation.getLastMilestone() != Milestone.COMPLETED) {
             reached = Milestone.COMPLETED;
@@ -126,7 +143,6 @@ public class SimulationAdvanceTask {
             log.info("Milestone reached: simulation={} milestone={}", simulation.getId(), reached);
         }
     }
-
 
     private boolean isBeforeMilestone(Milestone last, Milestone target) {
         if (last == null) return true;

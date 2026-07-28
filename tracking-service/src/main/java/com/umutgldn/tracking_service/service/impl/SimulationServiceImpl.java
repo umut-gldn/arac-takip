@@ -116,6 +116,8 @@ public class SimulationServiceImpl implements SimulationService {
         simulation.setCurrentLongitude(firstCoordinate.longitude());
         simulation.setStartedAt(Instant.now());
         simulation.setCompletedAt(null);
+        simulation.setLastMilestone(null);
+        simulation.setConsecutiveFailures(0);
 
         log.info("Simulation reset: id={}", id);
         return simulationMapper.toDetailResponse(simulation);

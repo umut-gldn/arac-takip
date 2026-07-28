@@ -41,6 +41,10 @@ public class Simulation {
     @Column(name = "total_coordinates", nullable = false)
     private Integer totalCoordinates;
 
+    @Column(name = "consecutive_failures")
+    @Builder.Default
+    private Integer consecutiveFailures = 0;
+
     @Column(name = "current_latitude", nullable = false)
     private Double currentLatitude;
 

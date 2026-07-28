@@ -5,4 +5,5 @@ public enum SimulationStatus {
     RUNNING,
     PAUSED,
     COMPLETED,
+    FAILED
 }
