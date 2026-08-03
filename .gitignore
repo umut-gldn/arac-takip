@@ -33,3 +33,6 @@ build/
 .vscode/
 
 *.log
+
+### Local notes (not for git) ###
+/notes/

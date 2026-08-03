@@ -21,6 +21,9 @@ public class Simulation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(name = "vehicle_name", nullable = false, length = 100)
     private String vehicleName;
 
