@@ -25,12 +25,20 @@ spring:
       group-id: notification-service
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping:
          locationUpdatedEvent:com.umutgldn.notification_service.event.LocationUpdatedEvent,milestoneReachedEvent:com.umutgldn.notification_service.event.MilestoneReachedEvent
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
 logging:
   level:
     com.umutgldn.notification_service: INFO
     org.hibernate.sql: WARN
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
